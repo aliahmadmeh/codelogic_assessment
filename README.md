@@ -10,13 +10,13 @@
 git clone https://github.com/your-username/predictive-maintenance-mlops.git
 cd predictive-maintenance-mlops
 
-2. Install Dependencies
+### 2. Install Dependencies
 
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-3. Prepare Data
+### 3. Prepare Data
 Place the following files in the data/ directory:
 
 train_FD001.txt
@@ -25,7 +25,7 @@ RUL_FD001.txt
 
 These are from the NASA CMAPSS dataset (FD001 subset).
 
-4. Train the Model
+### 4. Train the Model
 
 python models/train_model.py
 This saves the trained model and preprocessing pipeline in models/.
@@ -59,6 +59,7 @@ Model: GradientBoostingRegressor
 Metrics:
 
 RMSE: TBD
+
 MAE: TBD
 
 You can evaluate these in the training script and plot metrics as needed.
