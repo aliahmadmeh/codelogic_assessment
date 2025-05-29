@@ -9,7 +9,7 @@
 
 git clone https://github.com/aliahmadmeh/codelogic_assessment
 
-cd predictive-maintenance-mlops
+cd codelogic_assessment
 
 ### 2. Install Dependencies
 
