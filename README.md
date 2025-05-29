@@ -4,14 +4,14 @@
 
 ## 🛠️ Setup Instructions
 
-### 1. Clone the Repository
+### 1. 📁 Clone the Repository
 
 
 git clone https://github.com/aliahmadmeh/codelogic_assessment
 
 cd codelogic_assessment
 
-### 2. Install Dependencies
+### 2. 🐍 Install Dependencies
 
 python -m venv venv
 
@@ -19,7 +19,7 @@ source venv/bin/activate
 
 pip install -r requirements.txt
 
-### 3. Prepare Data
+### 3. 📁 Prepare Data
 Place the following files in the data/ directory:
 
   train_FD001.txt
