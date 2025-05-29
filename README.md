@@ -22,11 +22,11 @@ pip install -r requirements.txt
 ### 3. Prepare Data
 Place the following files in the data/ directory:
 
-train_FD001.txt
+  train_FD001.txt
 
-test_FD001.txt
+  test_FD001.txt
 
-RUL_FD001.txt
+  RUL_FD001.txt
 
 These are from the NASA CMAPSS dataset (FD001 subset).
 
@@ -46,11 +46,11 @@ Visit http://localhost:8000/docs to access Swagger UI.
 
 /health
 
-Health check.
+  Health check.
 
 /predict
 
-Make a single prediction.
+  Make a single prediction.
 
 Request Body:
 
@@ -69,7 +69,7 @@ Request Body:
 
 /predict_batch
 
-Submit a list of sensor readings for batch predictions.
+  Submit a list of sensor readings for batch predictions.
 
 📊 Model Performance
 
@@ -77,9 +77,9 @@ Model: GradientBoostingRegressor
 
 Metrics:
 
-RMSE: TBD
+  RMSE: TBD
 
-MAE: TBD
+  MAE: TBD
 
 You can evaluate these in the training script and plot metrics as needed.
 
