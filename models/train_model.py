@@ -1,76 +1,65 @@
 import pandas as pd
 import numpy as np
+import os
+import pickle
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_absolute_error, mean_squared_error
-from sklearn.model_selection import train_test_split
-import joblib
-import os
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 
-df = pd.read_csv("data/FD001.txt", sep="\s+", header=None)
-df.columns = ['unit_number', 'cycle'] + [f'op_setting_{i}' for i in range(1, 4)] + [f'sensor_{i}' for i in range(1, 22)]
-
-drop_cols = ['sensor_1', 'sensor_5', 'sensor_10', 'sensor_16', 'sensor_18', 'sensor_19']
-df.drop(columns=drop_cols, inplace=True)
+train_path = "data/train_FD001.txt"
+test_path = "data/test_FD001.txt"
+rul_path = "data/RUL_FD001.txt"
 
 
-rul_df = df.groupby("unit_number")["cycle"].max().reset_index()
-rul_df.columns = ["unit_number", "max_cycle"]
-df = df.merge(rul_df, on="unit_number", how="left")
-df["RUL"] = df["max_cycle"] - df["cycle"]
-df.drop(columns=["max_cycle"], inplace=True)
+assert os.path.exists(train_path), f"{train_path} not found!"
+assert os.path.exists(test_path), f"{test_path} not found!"
+assert os.path.exists(rul_path), f"{rul_path} not found!"
 
 
-rolling_window = 5
-rolling_cols = ['sensor_2', 'sensor_3', 'sensor_7', 'sensor_8', 'sensor_11', 'sensor_15']
-
-for col in rolling_cols:
-    df[f"{col}_mean"] = df.groupby("unit_number")[col].rolling(window=rolling_window).mean().reset_index(0, drop=True)
-    df[f"{col}_std"] = df.groupby("unit_number")[col].rolling(window=rolling_window).std().reset_index(0, drop=True)
-
-df.fillna(method="bfill", inplace=True)
-
-
-feature_cols = [col for col in df.columns if col not in ['unit_number', 'cycle', 'RUL']]
-X = df[feature_cols]
-y = df["RUL"]
+column_names = [
+    "unit_number", "time_in_cycles", "operational_setting_1", "operational_setting_2",
+    "operational_setting_3", "sensor_measurement_1", "sensor_measurement_2", "sensor_measurement_3",
+    "sensor_measurement_4", "sensor_measurement_5", "sensor_measurement_6", "sensor_measurement_7",
+    "sensor_measurement_8", "sensor_measurement_9", "sensor_measurement_10", "sensor_measurement_11",
+    "sensor_measurement_12", "sensor_measurement_13", "sensor_measurement_14", "sensor_measurement_15",
+    "sensor_measurement_16", "sensor_measurement_17", "sensor_measurement_18", "sensor_measurement_19",
+    "sensor_measurement_20", "sensor_measurement_21"
+]
 
 
-unique_units = df["unit_number"].unique()
-train_units, test_units = train_test_split(unique_units, test_size=0.2, random_state=42)
+train_df = pd.read_csv(train_path, sep=" ", header=None)
+train_df.dropna(axis=1, how="all", inplace=True)
+train_df.columns = column_names
 
-X_train = X[df["unit_number"].isin(train_units)]
-y_train = y[df["unit_number"].isin(train_units)]
-X_test = X[df["unit_number"].isin(test_units)]
-y_test = y[df["unit_number"].isin(test_units)]
 
+rul = train_df.groupby("unit_number")["time_in_cycles"].max().reset_index()
+rul.columns = ["unit_number", "max_cycle"]
+train_df = train_df.merge(rul, on="unit_number")
+train_df["RUL"] = train_df["max_cycle"] - train_df["time_in_cycles"]
+
+
+features = column_names[2:] 
+X = train_df[features]
+y = train_df["RUL"]
 
 pipeline = Pipeline([
-    ("scaler", StandardScaler()),
-    ("regressor", XGBRegressor(
-        n_estimators=300,
-        max_depth=6,
-        learning_rate=0.05,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        random_state=42
-    ))
+    ("scaler", StandardScaler())
 ])
 
-# Train model
-pipeline.fit(X_train, y_train)
+X_scaled = pipeline.fit_transform(X)
 
-# Evaluate
-y_pred = pipeline.predict(X_test)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-mae = mean_absolute_error(y_test, y_pred)
 
-print(f"RMSE: {rmse:.2f} cycles")
-print(f"MAE: {mae:.2f} cycles")
+model = GradientBoostingRegressor(n_estimators=100, max_depth=5, learning_rate=0.1, random_state=42)
+model.fit(X_scaled, y)
 
-# Save model and pipeline
+
 os.makedirs("models", exist_ok=True)
-joblib.dump(pipeline, "models/xgb_rul_model.pkl")
-print("Model saved to models/xgb_rul_model.pkl")
+with open("models/xgb_rul_model.pkl", "wb") as f:
+    pickle.dump(model, f)
+
+with open("models/preprocessing_pipeline.pkl", "wb") as f:
+    pickle.dump(pipeline, f)
+
+print("Model and preprocessing pipeline saved.")
