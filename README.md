@@ -30,7 +30,7 @@ Place the following files in the data/ directory:
 
 These are from the NASA CMAPSS dataset (FD001 subset).
 
-### 4. Train the Model
+### 🧠 Step 4: Train the Model
 
 python models/train_model.py
 
@@ -42,46 +42,30 @@ uvicorn api.main:app --reload
 
 Visit http://localhost:8000/docs to access Swagger UI.
 
+
+
 📈 API Endpoints
 
-/health
+| Endpoint         | Method | Description                            |
+| ---------------- | ------ | -------------------------------------- |
+| `/health`        | GET    | Health check                           |
+| `/predict`       | POST   | Single engine RUL prediction           |
+| `/predict_batch` | POST   | Batch predictions for multiple engines |
 
-  Health check.
 
-/predict
+📊 Model Overview
 
-  Make a single prediction.
+✅ Model Type: Gradient Boosting Regressor
 
-Request Body:
+🛠️ Feature Engineering: Rolling mean, time-window stats, normalization
 
-{
+🧪 Validation Strategy: Time-aware split
 
-  "operational_setting_1": 0.5,
-  
-  "operational_setting_2": 0.0,
-  
-  "operational_setting_3": 100.0,
-  
-  "sensor_measurement_1": 518.67,
-  
-  ...
-}
+📉 Evaluation Metrics:
 
-/predict_batch
+* RMSE: TBD
 
-  Submit a list of sensor readings for batch predictions.
-
-📊 Model Performance
-
-Model: GradientBoostingRegressor
-
-Metrics:
-
-  RMSE: TBD
-
-  MAE: TBD
-
-You can evaluate these in the training script and plot metrics as needed.
+* MAE: TBD
 
 📌 Notes
 
@@ -90,6 +74,18 @@ Built with time series feature engineering and robust model packaging.
 Fully compatible with Docker and CI/CD.
 
 Add Prometheus/Grafana for monitoring and PostgreSQL for logging predictions (in Docker Compose).
+
+🐳 Docker & CI/CD (optional extensions)
+
+This project is designed to support:
+
+✅ Docker + Docker Compose
+
+✅ PostgreSQL or SQLite for logging predictions
+
+✅ Prometheus / Grafana for monitoring
+
+✅ GitHub Actions for CI/CD
 
 📬 Contact
 
